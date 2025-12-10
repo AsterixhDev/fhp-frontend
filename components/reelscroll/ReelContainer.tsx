@@ -21,6 +21,8 @@ interface ReelContainerProps {
   hasMore?: boolean;
   isLoading?: boolean;
   className?: string;
+  onListEpisodes?: (reelId: string) => void;
+  showWatchButton?: boolean;
 }
 
 const ReelContainer: React.FC<ReelContainerProps> = ({
@@ -31,8 +33,11 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
   hasMore = true,
   isLoading = false,
   className = "",
+  onListEpisodes,
+  showWatchButton = true,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(initialActiveIndex);
   const [isScrolling, setIsScrolling] = useState(false);
 
@@ -69,7 +74,7 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
 
   // Handle manual scroll events
   const handleScroll = useCallback(() => {
-    if (!containerRef.current || isScrolling) return;
+    if (!containerRef.current) return;
 
     const container = containerRef.current;
     const scrollTop = container.scrollTop;
@@ -83,7 +88,13 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
     ) {
       setActiveIndex(newActiveIndex);
     }
-  }, [activeIndex, reels.length, isScrolling]);
+
+    setIsScrolling(true);
+    if (scrollTimeoutRef.current) window.clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = window.setTimeout(() => {
+      setIsScrolling(false);
+    }, 150);
+  }, [activeIndex, reels.length]);
 
   return (
     <div className={`relative h-full overflow-hidden ${className}`}>
@@ -97,11 +108,9 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
           msOverflowStyle: "none",
         }}
         onScroll={handleScroll}
-        onScrollCapture={() => setIsScrolling(true)}
-        onScrollEndCapture={() => setIsScrolling(false)}
       >
         {reels.map((reel, index) => (
-          <div key={index} className="snap-start">
+          <div key={index} id={reel.id} className="snap-start">
             <ReelCard
               id={reel.id}
               title={reel.title}
@@ -116,8 +125,12 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
               onPause={() => handleReelPause(reel.id)}
               onLike={() => handleReelLike(reel.id)}
               onListEpisodes={() => {
-                const dramaId = reel.id.includes("-ep-") ? reel.id.split("-ep-")[0] : reel.id
-                router.push(`/drama/${dramaId}?open=episodes`)
+                if (onListEpisodes) {
+                  onListEpisodes(reel.id)
+                } else {
+                  const dramaId = reel.id.includes("-ep-") ? reel.id.split("-ep-")[0] : reel.id
+                  router.push(`/drama/${dramaId}?open=episodes`)
+                }
               }}
               onShare={() => handleReelShare(reel.id)}
               scrolling={isScrolling}
@@ -126,6 +139,7 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
                 // include hash to indicate a specific episode, if available
                 router.push(`/drama/${dramaId}#${reel.id}`)
               }}
+              showWatchButton={showWatchButton}
             />
           </div>
         ))}

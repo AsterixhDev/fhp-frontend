@@ -2,6 +2,7 @@
 
 import React from "react"
 import { User } from "@/lib/movie-structure/types"
+import ThumbnailImage from "@/components/ui/ThumbnailImage"
 
 interface Props {
   user?: Partial<User>
@@ -11,12 +12,7 @@ export default function ProfileHeader({ user }: Props) {
   return (
     <div className="bg-neutral-900/40 rounded-xl p-4 flex items-center gap-4">
       <div className="w-16 h-16 rounded-full bg-gray-700 overflow-hidden">
-        {user?.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={user.avatar_url} alt={`${user.name}`} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-neutral-800 flex items-center justify-center text-white">PP</div>
-        )}
+        <ThumbnailImage src={user?.avatar_url || undefined} alt={`${user?.name || "Profile"}`} width={64} height={64} className="w-full h-full object-cover" fallback={<div className="w-full h-full bg-neutral-800 flex items-center justify-center text-white">PP</div>} />
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-2">

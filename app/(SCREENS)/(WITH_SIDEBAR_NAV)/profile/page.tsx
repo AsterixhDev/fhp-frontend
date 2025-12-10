@@ -3,7 +3,6 @@
 import React from "react"
 import ProfileHeader from "./ProfileHeader"
 import MenuItem from "./MenuItem"
-import Link from "next/link"
 
 export default function ProfilePage() {
   return (

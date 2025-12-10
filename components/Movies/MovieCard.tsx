@@ -1,6 +1,7 @@
 // components/MovieCard.tsx
 
 import { TitleFull } from "@/lib/movie-structure/types"
+import Link from "next/link"
 
 interface Props {
   movie: TitleFull
@@ -11,7 +12,7 @@ const MovieCard = ({ movie }: Props) => {
   const posterUrl = posterAsset?.url || ""
 
   return (
-    <div className="bg-neutral-900 snap-start shrink-0 w-40 md:w-48 lg:w-52 cursor-pointer rounded-lg overflow-hidden hover:scale-[1.01] transition-transform">
+    <Link href={`/drama/${movie.title_id}`} className="bg-neutral-900 snap-start shrink-0 w-40 md:w-48 lg:w-52 cursor-pointer rounded-lg overflow-hidden hover:scale-[1.01] transition-transform">
       <div
         className="w-full h-44 bg-cover bg-center"
         style={{ backgroundImage: `url(${posterUrl})` }}
@@ -22,7 +23,7 @@ const MovieCard = ({ movie }: Props) => {
           {movie.genres?.[0]?.name} • {movie.release_year}
         </p>
       </div>
-    </div>
+    </Link>
   )
 }
 

@@ -1,5 +1,7 @@
+import { cn } from "@/lib/utils";
 import {
   Heart,
+  Info,
   List,
   Pause,
   Play,
@@ -26,6 +28,9 @@ interface ReelCardProps {
   onShare?: () => void;
   onListEpisodes?: () => void;
   onWatch?: () => void;
+  onDetails?: () => void;
+  showDetailsAction?: boolean;
+  showWatchButton?: boolean;
 }
 
 const ReelCard: React.FC<ReelCardProps> = ({
@@ -45,6 +50,9 @@ const ReelCard: React.FC<ReelCardProps> = ({
   onShare,
   onListEpisodes,
   onWatch,
+  onDetails,
+  showDetailsAction = false,
+  showWatchButton = true,
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -131,7 +139,10 @@ const ReelCard: React.FC<ReelCardProps> = ({
           </div>
 
           {/* Left Content */}
-          <div className="absolute left-4 bottom-24 text-white max-w-xs pointer-events-auto">
+          <div className={cn("absolute left-4 text-white max-w-xs pointer-events-auto",{
+              "bottom-24":showWatchButton && onWatch,
+              "bottom-6":!showWatchButton || !onWatch
+            })}>
             <h3 className="font-bold text-lg mb-1">{title}</h3>
             <p className="text-sm text-white/80 mb-1">{episode}</p>
 
@@ -183,6 +194,18 @@ const ReelCard: React.FC<ReelCardProps> = ({
               <span className="text-white text-xs font-medium">Episodes</span>
             </button>
 
+            {showDetailsAction && (
+              <button
+                onClick={onDetails}
+                className="flex flex-col items-center gap-1"
+              >
+                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition">
+                  <Info className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-white text-xs font-medium">Details</span>
+              </button>
+            )}
+
             <button
               onClick={onShare}
               className="flex flex-col items-center gap-1"
@@ -194,14 +217,15 @@ const ReelCard: React.FC<ReelCardProps> = ({
             </button>
           </div>
 
-          {/* Bottom Info */}
-          <div className="absolute bottom-4 left-4 right-16 pointer-events-auto">
-            <div className="flex items-center justify-between">
-              <button onClick={onWatch} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm font-medium">
-                Watch Now
-              </button>
+          {showWatchButton && onWatch && (
+            <div className="absolute bottom-4 left-4 right-16 pointer-events-auto">
+              <div className="flex items-center justify-between">
+                <button onClick={onWatch} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm font-medium">
+                  Watch Now
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </>
       )}
     </div>
