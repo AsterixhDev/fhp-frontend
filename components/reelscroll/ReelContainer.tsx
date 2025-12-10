@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation"
 import ReelCard from "./ReelCard";
 
 export interface ReelData {
@@ -35,27 +36,11 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
   const [activeIndex, setActiveIndex] = useState(initialActiveIndex);
   const [isScrolling, setIsScrolling] = useState(false);
 
-  const scrollToReel = useCallback(
-    (index: number) => {
-      if (!containerRef.current || index < 0 || index >= reels.length) return;
+  // reference unused prop to avoid lint error
+  void onLoadMore
 
-      setIsScrolling(true);
-      const container = containerRef.current;
-      const targetScrollTop = index * window.innerHeight;
-
-      container.scrollTo({
-        top: targetScrollTop,
-        behavior: "smooth",
-      });
-
-      // Update active index after a short delay to account for smooth scrolling
-      setTimeout(() => {
-        setActiveIndex(index);
-        setIsScrolling(false);
-      }, 300);
-    },
-    [reels.length],
-  );
+  // router for navigation to drama pages
+  const router = useRouter()
 
   // Update parent component when active reel changes
   useEffect(() => {
@@ -75,11 +60,6 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
   const handleReelLike = useCallback((reelId: string) => {
     console.log("Liked reel:", reelId);
     // Add your like logic here
-  }, []);
-
-  const handleReelComment = useCallback((reelId: string) => {
-    console.log("Commenting on reel:", reelId);
-    // Add your comment logic here
   }, []);
 
   const handleReelShare = useCallback((reelId: string) => {
@@ -121,7 +101,7 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
         onScrollEndCapture={() => setIsScrolling(false)}
       >
         {reels.map((reel, index) => (
-          <div key={reel.id} className="snap-start">
+          <div key={index} className="snap-start">
             <ReelCard
               id={reel.id}
               title={reel.title}
@@ -135,9 +115,17 @@ const ReelContainer: React.FC<ReelContainerProps> = ({
               onPlay={() => handleReelPlay(reel.id)}
               onPause={() => handleReelPause(reel.id)}
               onLike={() => handleReelLike(reel.id)}
-              onListEpisodes={() => handleReelComment(reel.id)}
+              onListEpisodes={() => {
+                const dramaId = reel.id.includes("-ep-") ? reel.id.split("-ep-")[0] : reel.id
+                router.push(`/drama/${dramaId}?open=episodes`)
+              }}
               onShare={() => handleReelShare(reel.id)}
               scrolling={isScrolling}
+              onWatch={() => {
+                const dramaId = reel.id.includes("-ep-") ? reel.id.split("-ep-")[0] : reel.id
+                // include hash to indicate a specific episode, if available
+                router.push(`/drama/${dramaId}#${reel.id}`)
+              }}
             />
           </div>
         ))}

@@ -165,6 +165,16 @@ export interface Subtitle {
   is_closed_caption?: boolean
 }
 
+export interface EpisodeAsset {
+  episode_id: string
+  title: string
+  thumbnail?: string | null
+  duration?: string | null
+  views?: string | null
+  likes?: number | null
+  shares?: number | null
+}
+
 // ---------------------------
 // 6. Series / Season / Episode
 // ---------------------------
@@ -327,6 +337,7 @@ export interface TitleFull extends Title {
   video_sources?: VideoSource[]
   subtitles?: Subtitle[]
   series_info?: SeriesInfo | null
+  episodes?: EpisodeAsset[]
 }
 
 // ---------------------------

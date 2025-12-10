@@ -9,7 +9,7 @@ const navigations = [
   { icon: Film, label: "Reels", url: "/reels" },
   { icon: Compass, label: "Discover", url: "/discover" },
   { icon: User, label: "Profile", url: "/profile" },
-  { icon: Heart, label: "Favorites", url: "/favorites" },
+  { icon: Heart, label: "Favorites", url: "/profile/favorites" },
 ];
 
 const Sidebar = ({ initialPathname }: { initialPathname: string }) => {

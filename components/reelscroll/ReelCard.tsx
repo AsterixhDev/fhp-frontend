@@ -25,6 +25,7 @@ interface ReelCardProps {
   onLike?: () => void;
   onShare?: () => void;
   onListEpisodes?: () => void;
+  onWatch?: () => void;
 }
 
 const ReelCard: React.FC<ReelCardProps> = ({
@@ -43,6 +44,7 @@ const ReelCard: React.FC<ReelCardProps> = ({
   onLike,
   onShare,
   onListEpisodes,
+  onWatch,
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -73,7 +75,7 @@ const ReelCard: React.FC<ReelCardProps> = ({
   };
 
   return (
-    <div className="relative w-full h-[calc(100dvh-(4px*12))] md:h-[calc(100dvh-(var(--spacing)*6))] bg-black flex flex-col justify-end overflow-hidden">
+    <div data-reel-id={id} className="relative w-full h-[calc(100dvh-(4px*12))] md:h-[calc(100dvh-(var(--spacing)*6))] bg-black flex flex-col justify-end overflow-hidden">
       {/* Video Background/Thumbnail */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -195,7 +197,7 @@ const ReelCard: React.FC<ReelCardProps> = ({
           {/* Bottom Info */}
           <div className="absolute bottom-4 left-4 right-16 pointer-events-auto">
             <div className="flex items-center justify-between">
-              <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm font-medium">
+              <button onClick={onWatch} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm font-medium">
                 Watch Now
               </button>
             </div>

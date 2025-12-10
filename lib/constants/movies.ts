@@ -111,6 +111,21 @@ const generateTitleFull = (idx: number): TitleFull => {
     { genre_id: `g-${(idx % 5) + 1}`, name: ["Romance", "Thriller", "Fantasy", "Mystery", "Adventure"][idx % 5] },
   ]
 
+  // Generate a variable number of episodes to support drama pages
+  const episodeCount = 5 + (idx % 36) // 5..40
+  const episodes = Array.from({ length: episodeCount }, (_, i) => {
+    const n = i + 1
+    return {
+      episode_id: `${base.title_id}-ep-${n}`,
+      title: `Episode ${n}`,
+      thumbnail: posterFor(`${base.title_id}-ep-${n}`, 400, 600),
+      duration: `${10 + (n % 50)}m`,
+      views: `${(n * 1234).toString()}`,
+      likes: Math.floor(Math.random() * 1000),
+      shares: Math.floor(Math.random() * 200),
+    }
+  })
+
   return {
     ...base,
     genres,
@@ -120,6 +135,7 @@ const generateTitleFull = (idx: number): TitleFull => {
     video_sources,
     subtitles: [],
     series_info: null,
+    episodes,
   }
 }
 
