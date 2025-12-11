@@ -6,18 +6,20 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import DiscoverPosterCard from "./DiscoverPosterCard"
 import { TitleFull } from "@/lib/movie-structure/types"
 import { allTitles } from "@/lib/constants/movies"
+import type { DiscoverFilters } from "./FilterDrawer"
 
 const PAGE_SIZE = 12
 
 interface Props {
   query: string
   category: string
+  filters?: DiscoverFilters
 }
 
 // Utility function to filter movies by query and category
-const filterMovies = (movies: TitleFull[], query: string, category: string) => {
+const filterMovies = (movies: TitleFull[], query: string, category: string, filters?: DiscoverFilters) => {
   const q = query.trim().toLowerCase()
-  return movies.filter((movie) => {
+  let result = movies.filter((movie) => {
     const matchesCategory =
       category === "all" ||
       movie.genres?.[0]?.name.toLowerCase() === category.toLowerCase()
@@ -28,9 +30,27 @@ const filterMovies = (movies: TitleFull[], query: string, category: string) => {
       movie.release_year?.toString().includes(q)
     return matchesCategory && matchesQuery
   })
+
+  if (filters?.genre) {
+    result = result.filter((m) => m.genres?.some((g) => g.name === filters.genre))
+  }
+  if (filters?.yearStart != null) {
+    result = result.filter((m) => (m.release_year ?? 0) >= (filters.yearStart as number))
+  }
+  if (filters?.yearEnd != null) {
+    result = result.filter((m) => (m.release_year ?? 0) <= (filters.yearEnd as number))
+  }
+
+  if (filters?.sort === "latest") {
+    result = result.slice().sort((a, b) => (b.release_year ?? 0) - (a.release_year ?? 0))
+  } else {
+    result = result.slice().sort((a, b) => (b.popularity_score ?? 0) - (a.popularity_score ?? 0))
+  }
+
+  return result
 }
 
-const DiscoverGrid: React.FC<Props> = ({ query, category }) => {
+const DiscoverGrid: React.FC<Props> = ({ query, category, filters }) => {
   const [results, setResults] = useState<TitleFull[]>([])
   const [page, setPage] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -43,8 +63,8 @@ const DiscoverGrid: React.FC<Props> = ({ query, category }) => {
 
   // Full filtered movies based on current query/category
   const filteredMovies = useMemo(
-    () => filterMovies(allTitles, debouncedQuery, category),
-    [debouncedQuery, category],
+    () => filterMovies(allTitles, debouncedQuery, category, filters),
+    [debouncedQuery, category, filters],
   )
 
   // Reset state when query/category changes safely
