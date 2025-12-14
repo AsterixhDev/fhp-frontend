@@ -9,7 +9,7 @@ export default async function ScreenWithSidebarLayout({
 }: PropsWithChildren) {
   const pathname = await getPathnameOnServerSide()
   return (
-    <div className="size-full flex flex-col-reverse md:grid grid-cols-1 md:gap-2 md:grid-cols-[2fr_5fr] md:max-w-6xl md:mx-auto md:p-4">
+    <div className="size-full flex isolate relative flex-col-reverse md:grid grid-cols-1 md:gap-2 md:grid-cols-[2fr_5fr] md:max-w-6xl md:mx-auto md:p-4">
       <Sidebar initialPathname={pathname} />
       <PageScreen>{children}</PageScreen>
     </div>

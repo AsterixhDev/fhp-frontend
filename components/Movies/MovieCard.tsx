@@ -14,7 +14,7 @@ const MovieCard = ({ movie }: Props) => {
   const posterUrl = posterAsset?.url || ""
 
   return (
-    <Link href={`/drama/${movie.title_id}`} className="bg-neutral-900 snap-start shrink-0 w-40 md:w-48 lg:w-52 cursor-pointer rounded-xl overflow-hidden hover:scale-[1.01] transition-transform relative">
+    <Link href={`/drama/${movie.title_id}`} className="bg-neutral-900 snap-start shrink-0 w-40 md:w-48 max-w-full lg:w-52 cursor-pointer rounded-xl overflow-hidden hover:scale-[1.01] transition-transform relative">
       <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-indigo-500/10 blur-lg -z-10" />
       <div className="relative">
         <ThumbnailImage src={posterUrl} alt={movie.name} width={192} height={176} className="w-full h-44 object-cover" />

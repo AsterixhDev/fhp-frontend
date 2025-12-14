@@ -1,18 +1,15 @@
 "use client";
 
-import React from "react";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-  type CarouselApi,
+  type CarouselApi
 } from "@/components/ui/carousel";
-import { featuredMovies } from "@/lib/constants/movies";
-import Link from "next/link";
 import ThumbnailImage from "@/components/ui/ThumbnailImage";
+import { featuredMovies } from "@/lib/constants/movies";
 import { Heart, Play } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function FeaturedCarousel() {
@@ -125,22 +122,6 @@ export default function FeaturedCarousel() {
             );
           })}
         </CarouselContent>
-        <CarouselPrevious className="hidden md:flex" />
-        <CarouselNext className="hidden md:flex" />
-        {snapCount > 1 && (
-          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2">
-            {Array.from({ length: snapCount }).map((_, i) => (
-              <button
-                key={i}
-                aria-label={`Go to slide ${i + 1}`}
-                onClick={() => api?.scrollTo(i)}
-                className={`size-2 rounded-full ${
-                  selected === i ? "bg-emerald-400" : "bg-white/30"
-                }`}
-              />
-            ))}
-          </div>
-        )}
         {snapCount > 1 && (
           <div className="absolute right-2 top-1/2 -translate-y-1/2 hidden md:flex md:flex-col gap-2 z-10">
             {featuredMovies.map((m, i) => {

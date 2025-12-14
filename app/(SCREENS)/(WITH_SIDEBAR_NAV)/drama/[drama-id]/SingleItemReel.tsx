@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState, useLayoutEffect, useRef } from "react"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
 import type { TitleFull } from "@/lib/movie-structure/types"
 import EpisodesDrawer from "./EpisodesDrawer"
@@ -28,6 +28,11 @@ export default function SingleItemReel({ title, initialOpen = false, initialEpis
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false)
   const [activeIndex, setActiveIndex] = useState<number>(initialIndex)
 
+  const hydratedRef = useRef(false) // ensures one-time URL→scroll hydration only
+  const debounceTimerRef = useRef<number | null>(null) // gates rapid scroll → URL feedback
+  const lastEpisodeRef = useRef<string | null>(initialEpisodeId ?? null) // avoids redundant replaces
+  const [requestedId, setRequestedId] = useState<string | null>(null)
+
   const reels: ReelData[] = useMemo(() => {
     const eps = title.episodes || []
     return eps.map((ep) => ({
@@ -48,25 +53,42 @@ export default function SingleItemReel({ title, initialOpen = false, initialEpis
     setEpisodesOpen(true)
   }
 
-  const scrollToEpisode = (episodeId: string) => {
-    const el = document.querySelector(`[data-reel-id="${episodeId}"]`)
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" })
-  }
+  
 
   const updateUrlEpisode = useCallback((episodeId: string) => {
     const url = `${pathname}?episode=${encodeURIComponent(episodeId)}`
-    router.replace(url)
+    router.replace(url, { scroll: false }) // never move the viewport on URL sync
   }, [pathname, router])
 
-  useEffect(() => {
-    if (initialEpisodeId) {
-      scrollToEpisode(initialEpisodeId)
+  useLayoutEffect(() => {
+    // One-time pre-paint positioning from URL
+    if (!hydratedRef.current && initialEpisodeId) {
+      hydratedRef.current = true
+      lastEpisodeRef.current = initialEpisodeId
+    } else {
+      hydratedRef.current = true
     }
   }, [initialEpisodeId])
 
   useEffect(() => {
-    if (activeEpisodeId) {
-      updateUrlEpisode(activeEpisodeId)
+    // Passive URL sync trails scroll; no effect until hydration is done
+    if (!hydratedRef.current) return
+    if (!activeEpisodeId || lastEpisodeRef.current === activeEpisodeId) return
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
+    debounceTimerRef.current = window.setTimeout(() => {
+      if (lastEpisodeRef.current !== activeEpisodeId) {
+        lastEpisodeRef.current = activeEpisodeId
+        updateUrlEpisode(activeEpisodeId)
+      }
+    }, 150)
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+        debounceTimerRef.current = null
+      }
     }
   }, [activeEpisodeId, updateUrlEpisode])
 
@@ -77,6 +99,7 @@ export default function SingleItemReel({ title, initialOpen = false, initialEpis
       <ReelContainer
         reels={reels}
         initialActiveIndex={activeIndex}
+        requestedId={requestedId ?? undefined}
         onReelChange={(idx) => setActiveIndex(idx)}
         hasMore={false}
         isLoading={false}
@@ -94,8 +117,8 @@ export default function SingleItemReel({ title, initialOpen = false, initialEpis
         hideLauncher={true}
         activeEpisodeId={activeEpisodeId}
         onSelectEpisode={(episodeId) => {
-          updateUrlEpisode(episodeId)
-          scrollToEpisode(episodeId)
+          // User selection drives scroll; URL will follow via passive sync
+          setRequestedId(episodeId)
         }}
       />
 

@@ -149,6 +149,38 @@ export const getTrendingTitles = (): TitleFull[] => allTitles.slice(3, 8)
 export const featuredMovies: TitleFull[] = getFeaturedTitles()
 export const trendingMovies: TitleFull[] = getTrendingTitles()
 
+export type GenreSummary = {
+  genre: string
+  thumbnail: string
+  ranking: number
+}
+
+export const getGenreList = (): GenreSummary[] => {
+  const byGenre = new Map<string, { sum: number; count: number; thumb?: string }>()
+
+  for (const t of allTitles) {
+    const posterAsset = t.media?.find((m) => m.type === "backdrop")?.url || t.media?.find((m) => m.type === "poster")?.url || ""
+    const popularity = t.popularity_score ?? 0
+    for (const g of t.genres ?? []) {
+      const key = g.name
+      const prev = byGenre.get(key)
+      if (prev) {
+        byGenre.set(key, { sum: prev.sum + popularity, count: prev.count + 1, thumb: prev.thumb ?? posterAsset })
+      } else {
+        byGenre.set(key, { sum: popularity, count: 1, thumb: posterAsset })
+      }
+    }
+  }
+
+  const list: GenreSummary[] = Array.from(byGenre.entries()).map(([genre, v]) => ({
+    genre,
+    thumbnail: v.thumb || "",
+    ranking: v.sum,
+  }))
+
+  return list.sort((a, b) => b.ranking - a.ranking)
+}
+
 /**
  * Generate episode-based reel data: picks 1 random drama and 1 random episode from it
  * Returns a data shape compatible with ReelContainer

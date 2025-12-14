@@ -83,7 +83,7 @@ const ReelCard: React.FC<ReelCardProps> = ({
   };
 
   return (
-    <div data-reel-id={id} className="relative w-full h-[calc(100dvh-(4px*12))] md:h-[calc(100dvh-(var(--spacing)*6))] bg-black flex flex-col justify-end overflow-hidden">
+    <div data-reel-id={id} className="relative w-full h-full bg-black flex flex-col justify-end overflow-hidden">
       {/* Video Background/Thumbnail */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
